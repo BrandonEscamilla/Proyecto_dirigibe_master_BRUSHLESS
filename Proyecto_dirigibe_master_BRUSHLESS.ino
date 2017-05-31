@@ -175,7 +175,7 @@ void loop(){
         int uP = Kp*errorActual;
         uP = -uP;
         //Mapear uP de 0 a 3mts de error a un valor de 0 a 179 para darle la velocidad del motor brushless
-        uP = map(uP, 0, 3, 0, 179);
+        uP = map(uP, 0, 450, 0, 179);
         //Restringe el valor de 0 a 179 de uP
         uP=constrain(uP,0,179);
         SimonKESC.write(uP);  // pin 9 arduino,  pin 10  PH     
