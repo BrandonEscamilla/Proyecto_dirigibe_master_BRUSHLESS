@@ -59,7 +59,7 @@ void setup(){
 
   
   {
-  SimonKESC.attach(3); // controlador esc para motor brushless 
+  SimonKESC.attach(9); // controlador esc para motor brushless 
   // motorESC.write(40); // activador motor brushless
 
   
@@ -194,16 +194,13 @@ void loop(){
         errorActual = referenciaAltura - alturaActual; // calculo del error
         int uP = Kp*errorActual;
 
-        {
-          A = map(A,0,1023,0,255);
-          SimonKESC.write(A); 
-        }
-        A = uP; 
+        
+        
         //if (uP <= 0)
         uP = -uP;
        uP=constrain(uP,0,255);
         {
-            analogWrite(A,uP);  // pin 9 arduino,  pin 10  PH     
+            SimonKESC.write(A,uP);  // pin 9 arduino,  pin 10  PH     
             analogWrite(B,0); //  pin 10 arduino,   pin 15 PH 
             
         }
