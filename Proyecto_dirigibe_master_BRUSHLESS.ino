@@ -22,15 +22,10 @@ double Po, T, P; //presion del punto inicial para h=0;
 unsigned char status;
 short altitud;
 Servo SimonKESC; 
-
 //Variables globales de PID
 const float Kp =150;//ganancia proporcional como una constante qÂ´puede tener decimales
-const float Ki =.03;//ganancia integral
-const unsigned char Td = 1;//ganancia derivativa
 unsigned long lastTime;//variable de tiempo auxiliar para muestreos uniformes
 float errorActual = 0;// el error del sistema
-float errorAcum = 0;
-float ultimoError = 0;
 unsigned char Tm = 170; // periodo de muestreo T deseado en milisegundos
 const unsigned char numReadings = 8;
 short readings[numReadings]; // the readings from the analog input
@@ -46,8 +41,6 @@ double average = 0;   // the average
 //   1           1     -- NS
 
 const unsigned char A = 9;
-const unsigned char B = 10;
-const unsigned char EN = 11;
 
 // Configuración de wifi
 char auth[] = "5c2ebcc6a3ab4221983424df769cc3be";
@@ -55,22 +48,12 @@ char auth[] = "5c2ebcc6a3ab4221983424df769cc3be";
 #define ESP_PASS "273065396" // Your network password here
 
 void setup(){
-
-  SimonKESC.attach(9); // controlador esc para motor brushless 
-  // motorESC.write(40); // activador motor brushless
-
-  
-
+    SimonKESC.attach(A); // controlador esc para motor brushless 
+    // motorESC.write(40); // activador motor brushless
     for (unsigned char thisReading = 0; thisReading < numReadings; thisReading++){
         readings[thisReading] = 0;  
     }
-
-    pinMode(A, OUTPUT);
-    pinMode(B, OUTPUT);
-    //pinMode(EN, OUTPUT);
-    //analogWrite(A , 255);//escribir la acciÃ³n de control uP en el pin 9 del actuador
-    digitalWrite(B , 0);//escribir la acciÃ³n de control uP en el pin 9 del actuador
-
+  
     Serial.begin(115200);  // Set console baud rate
     while (!Serial);
     EspSerial.begin(115200);  // Set ESP8266 baud rate
@@ -190,29 +173,12 @@ void loop(){
     if(timeChange >= Tm){   //hasta que el tiempo transcurrido sea >T se calcula el resto 
         errorActual = referenciaAltura - alturaActual; // calculo del error
         int uP = Kp*errorActual;
-
-        
-        
-        //if (uP <= 0)
         uP = -uP;
-       uP=constrain(uP,0,255);
-       
-            SimonKESC.write(A,uP);  // pin 9 arduino,  pin 10  PH     
-            analogWrite(B,0); //  pin 10 arduino,   pin 15 PH 
-            
-                
-       // if (uP > 0)
-       
-       {
-           // analogWrite(A,uP); //  pin 10 arduino,  pin 2  PH     
-          //  analogWrite(B,0);
-         //   uP=constrain(uP,0,255);
-        }
-        // errorAcum += errorActual;//+ultimoError;        // float difError = errorActual - ultimoError;
-
-        // int uP = (errorActual)*Kp+(errorAcum)*Ki+(difError)*Td;//calculo de ley de controll proporcional al error,a la sumatoria del error (integral) y al cambio del error;
-        // uP = constrain(uP,0,255);//limitar el valor de uP a lim inf 0 y lim sup 255
-        // analogWrite(A , uP);//escribir la acciÃ³n de control uP en el pin 9 del actuador
+        //Mapear uP de 0 a 3mts de error a un valor de 0 a 179 para darle la velocidad del motor brushless
+        uP = map(uP, 0, 3, 0, 179)
+        //Restringe el valor de 0 a 179 de uP
+        uP=constrain(uP,0,179);
+        SimonKESC.write(uP);  // pin 9 arduino,  pin 10  PH     
         Serial.print(alturaActual);
         Serial.print("\t");
         Serial.print(referenciaAltura);
@@ -220,8 +186,6 @@ void loop(){
         Serial.print(uP);
         Serial.print("\t");
         Serial.println(lastTime);
-        
-        // ultimoError = errorActual;
         lastTime = now;
     }// grabar el ultimo tiempo medido en la variable lastime
 }
