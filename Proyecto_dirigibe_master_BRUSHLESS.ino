@@ -56,14 +56,11 @@ char auth[] = "5c2ebcc6a3ab4221983424df769cc3be";
 
 void setup(){
 
-
-  
-  {
   SimonKESC.attach(9); // controlador esc para motor brushless 
   // motorESC.write(40); // activador motor brushless
 
   
-  }
+
     for (unsigned char thisReading = 0; thisReading < numReadings; thisReading++){
         readings[thisReading] = 0;  
     }
@@ -199,12 +196,11 @@ void loop(){
         //if (uP <= 0)
         uP = -uP;
        uP=constrain(uP,0,255);
-        {
+       
             SimonKESC.write(A,uP);  // pin 9 arduino,  pin 10  PH     
             analogWrite(B,0); //  pin 10 arduino,   pin 15 PH 
             
-        }
-        
+                
        // if (uP > 0)
        
        {
